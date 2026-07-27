@@ -11,11 +11,15 @@ per-project detail: `docs/CrossCompileGuide.md` (INDI), `docs/KStars-Build-Plan.
 ## Layout
 
 ```
-repo/                   git submodules — the actual source trees
-  indi/                 github.com/indilib/indi.git
-  indi-3rdparty/        github.com/indilib/indi-3rdparty.git
-  kstars/                github.com/kde/kstars.git
-  stellarsolver/         github.com/rlancaste/stellarsolver.git
+repo/                   plain independent git clones (NOT submodules) — the source trees
+  indi/                 github.com/indilib/indi.git, tag v2.2.1.1
+  indi-3rdparty/        github.com/indilib/indi-3rdparty.git, master
+  kstars/                github.com/kde/kstars.git, stable-3.8.3 branch
+  stellarsolver/         github.com/rlancaste/stellarsolver.git, tag 2.6
+
+patches/                 local fixes on top of repo/*, tracked here (never inside
+                         repo/* itself) — applied automatically + idempotently by the
+                         relevant build script on every run, see docs/BUILD-AND-PACKAGE.md
 
 rpi5-sysroot/            synced copy of the Pi's own libs/headers/cmake configs (input,
                          not build output — see docs/BUILD-AND-PACKAGE.md)
@@ -35,16 +39,18 @@ rpi5-toolchain.cmake     cross-compile CMake toolchain file
 docs/                    all narrative documentation
 ```
 
-`rpi5-sysroot/` and `rpi5-staging/` are **gitignored** — several GB of binary blobs
-(synced system libs / compiled output), a bad fit for git, and fully regenerable from
-what *is* tracked: `rpi5-sysroot/` from the Pi (`Makefile.sysroot`), `rpi5-staging/`
-from the `repo/*` submodules (`make build`).
+`rpi5-sysroot/`, `rpi5-staging/`, and `repo/` are all **gitignored** — several GB of
+binary blobs / third-party source, a bad fit for git, and fully regenerable: `repo/`
+via plain `git clone` (`make clone-repos`), `rpi5-sysroot/` from the Pi
+(`Makefile.sysroot`), `rpi5-staging/` by building `repo/*` (`make build`). Local fixes
+on top of `repo/*` live in `patches/` (tracked, applied automatically) so nothing is
+lost by re-cloning.
 
 ## Quick start
 
 ```bash
 make help
-make submodules                              # git submodule update --init --recursive, if repo/* is empty
+make clone-repos                             # clone repo/{indi,indi-3rdparty,kstars,stellarsolver}, if missing
 make -f Makefile.sysroot reproduce PI_IP=<pi-ip>  # only on first setup, or after installing new -dev pkgs on the Pi
 make fix-env                                 # required after every rpi5-builder container recreation
 make build                                   # build+install everything, no packaging

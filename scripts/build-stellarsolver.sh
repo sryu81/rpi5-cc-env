@@ -1,13 +1,19 @@
 #!/bin/bash
 # Runs INSIDE rpi5-builder. Requires fix-env.sh to have been run first
 # (StellarSolver's Qt5 autogen needs working moc/uic in the sysroot).
-# repo/stellarsolver is a git submodule — must already be checked out
-# (git submodule update --init repo/stellarsolver on the host if missing).
+# repo/stellarsolver is a plain git clone (not a submodule) — must already be
+# checked out (`make clone-repos` on the host if missing).
 set -euo pipefail
 
 CCDIR=/home/soo/cc
 BUILD=$CCDIR/repo/stellarsolver/build-rpi5
 STAGE=$CCDIR/rpi5-staging/kstars
+
+# Cross-compiling fix: default qsort_r feature detection uses try_run(), which
+# can't execute a cross-compiled test binary on the host. Adds a
+# CMAKE_CROSSCOMPILING branch with hardcoded, known-correct values instead of
+# guessing. Idempotent: no-op if already applied.
+bash "$CCDIR/scripts/apply-patch.sh" "$CCDIR/repo/stellarsolver" "$CCDIR/patches/stellarsolver-cross-compile-qsort_r.patch"
 
 mkdir -p "$BUILD" "$STAGE"
 cd "$BUILD"

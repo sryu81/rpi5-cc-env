@@ -6,7 +6,7 @@ set -euo pipefail
 
 SYSROOT=/home/soo/cc/rpi5-sysroot
 
-# git submodules are bind-mounted from the host (owned by the host UID) but
+# repo/* are plain git clones, bind-mounted from the host (owned by the host UID) but
 # accessed as root inside the container — git refuses to run any command
 # (including the `git describe` INDI's CMakeLists.txt uses for its version
 # string) against a repo it doesn't consider "owned" by the current user.

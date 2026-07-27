@@ -192,4 +192,4 @@ small/fixed connected-client set is fine; this is not a multi-session redesign.
   version of this trace (for future Claude Code sessions on this project).
 - `~/.claude/projects/-home-soo-cc/memory/user_ekos_mobile_app.md` — user/project context.
 - `docs/BUILD-AND-PACKAGE.md` — the cross-compile pipeline this fork will eventually build
-  through (`repo/kstars` submodule, `make kstars-deb`, etc.).
+  through (`repo/kstars` git clone, `make kstars-deb`, etc.).

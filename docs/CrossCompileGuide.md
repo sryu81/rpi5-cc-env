@@ -1,7 +1,7 @@
 # Cross-Compiling for Raspberry Pi 5 on Debian 12 (Bookworm)
 
 > **Superseded by the `Makefile`.** The project has since been restructured: source
-> repos live under `repo/` (git submodules), INDI staging is split into
+> repos live under `repo/` (plain git clones, not submodules), INDI staging is split into
 > `rpi5-staging/indi` and `rpi5-staging/indi-3rdparty`, INDI now packages as **two**
 > `.deb`s (`indi-core-rpi5` + `indi-3rdparty-rpi5`, not one combined `indi-full-rpi5`),
 > and output goes to `deb/`. Paths and commands below (`~/cc/indi`, one combined INDI

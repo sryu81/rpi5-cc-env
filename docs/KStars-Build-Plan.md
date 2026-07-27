@@ -16,7 +16,7 @@ Separate staging dirs keep INDI and KStars builds independent.
 > baked into this pipeline.
 
 > **Also superseded by the `Makefile`.** Source now lives at `repo/stellarsolver` and
-> `repo/kstars` (git submodules), staging is `rpi5-staging/kstars`, packaging output is
+> `repo/kstars` (plain git clones, not submodules), staging is `rpi5-staging/kstars`, packaging output is
 > `deb/kstars-custom_3.8.3_arm64.deb`, and `kstars-custom`'s `Depends` now points at
 > `indi-core-rpi5` (INDI packages split into two `.deb`s). Run `make help` and see
 > `docs/BUILD-AND-PACKAGE.md` for the current, authoritative steps. Kept here for the

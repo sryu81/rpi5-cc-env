@@ -1,0 +1,116 @@
+diff --git a/drivers/auxiliary/wandererbox_plus_v3.cpp b/drivers/auxiliary/wandererbox_plus_v3.cpp
+index 08bf2e7..78c2e72 100644
+--- a/drivers/auxiliary/wandererbox_plus_v3.cpp
++++ b/drivers/auxiliary/wandererbox_plus_v3.cpp
+@@ -272,7 +272,7 @@ bool WandererBoxPlusV3::getData()
+             DC3diffSP.setState(IPS_OK);
+             DC3diffSP.apply();
+         }
+-        if (DC3diffSP[DC3_DPD_Mode].getState() == ISS_ON&&isnan(ENVMonitorNP[DEW_Point].value)==1)
++        if (DC3diffSP[DC3_DPD_Mode].getState() == ISS_ON&&std::isnan(ENVMonitorNP[DEW_Point].value)==1)
+         {
+             DC3DIFFMODE=false;
+             DC3CONSTMODE=false;
+@@ -530,7 +530,7 @@ bool WandererBoxPlusV3::ISNewSwitch(const char *dev, const char *name, ISState *
+     {
+         DC3diffSP.update(states, names, n);
+         DC3diffSP.setState(IPS_ALERT);
+-        if(DC3diffSP[DC3_DPD_Mode].getState() == ISS_ON&&ENVMonitorNP[Probe1_Temp].value!=-127&&isnan(ENVMonitorNP[DEW_Point].value)==0)
++        if(DC3diffSP[DC3_DPD_Mode].getState() == ISS_ON&&ENVMonitorNP[Probe1_Temp].value!=-127&&std::isnan(ENVMonitorNP[DEW_Point].value)==0)
+         {
+             DC3DIFFMODE=true;
+             DC3CONSTMODE=false;
+@@ -545,7 +545,7 @@ bool WandererBoxPlusV3::ISNewSwitch(const char *dev, const char *name, ISState *
+             LOGF_INFO("Dew Point Difference Mode for DC3 activated! WandererBox will keep the dew heater at the temperature higher than the dew point by the set value.","Updated");
+             return true;
+         }
+-        else if(DC3diffSP[DC3_DPD_Mode].getState() == ISS_ON&&(ENVMonitorNP[Probe1_Temp].value==-127||isnan(ENVMonitorNP[DEW_Point].value)==1))
++        else if(DC3diffSP[DC3_DPD_Mode].getState() == ISS_ON&&(ENVMonitorNP[Probe1_Temp].value==-127||std::isnan(ENVMonitorNP[DEW_Point].value)==1))
+         {
+             DC3DIFFMODE=false;
+             DC3CONSTMODE=false;
+diff --git a/drivers/auxiliary/wandererbox_pro_v3.cpp b/drivers/auxiliary/wandererbox_pro_v3.cpp
+index 1a40725..2181f1b 100644
+--- a/drivers/auxiliary/wandererbox_pro_v3.cpp
++++ b/drivers/auxiliary/wandererbox_pro_v3.cpp
+@@ -416,7 +416,7 @@ bool WandererBoxProV3::getData()
+             dc5diffSP.setState(IPS_OK);
+             dc5diffSP.apply();
+         }
+-        if (dc5diffSP[DC5_DPD_Mode].getState() == ISS_ON&&isnan(ENVMonitorNP[DEW_Point].value)==1)
++        if (dc5diffSP[DC5_DPD_Mode].getState() == ISS_ON&&std::isnan(ENVMonitorNP[DEW_Point].value)==1)
+         {
+             DC5DIFFMODE=false;
+             DC5CONSTMODE=false;
+@@ -478,7 +478,7 @@ bool WandererBoxProV3::getData()
+             dc6diffSP.setState(IPS_OK);
+             dc6diffSP.apply();
+         }
+-        if (dc6diffSP[DC6_DPD_Mode].getState() == ISS_ON&&isnan(ENVMonitorNP[DEW_Point].value)==1)
++        if (dc6diffSP[DC6_DPD_Mode].getState() == ISS_ON&&std::isnan(ENVMonitorNP[DEW_Point].value)==1)
+         {
+             DC6DIFFMODE=false;
+             DC6CONSTMODE=false;
+@@ -539,7 +539,7 @@ bool WandererBoxProV3::getData()
+             dc7diffSP.setState(IPS_OK);
+             dc7diffSP.apply();
+         }
+-        if (dc7diffSP[DC7_DPD_Mode].getState() == ISS_ON&&isnan(ENVMonitorNP[DEW_Point].value)==1)
++        if (dc7diffSP[DC7_DPD_Mode].getState() == ISS_ON&&std::isnan(ENVMonitorNP[DEW_Point].value)==1)
+         {
+             DC7DIFFMODE=false;
+             DC7CONSTMODE=false;
+@@ -966,7 +966,7 @@ bool WandererBoxProV3::ISNewSwitch(const char *dev, const char *name, ISState *s
+     {
+         dc5diffSP.update(states, names, n);
+         dc5diffSP.setState(IPS_ALERT);
+-        if(dc5diffSP[DC5_DPD_Mode].getState() == ISS_ON&&ENVMonitorNP[Probe1_Temp].value!=-127&&isnan(ENVMonitorNP[DEW_Point].value)==0)
++        if(dc5diffSP[DC5_DPD_Mode].getState() == ISS_ON&&ENVMonitorNP[Probe1_Temp].value!=-127&&std::isnan(ENVMonitorNP[DEW_Point].value)==0)
+         {
+             DC5DIFFMODE=true;
+             DC5CONSTMODE=false;
+@@ -981,7 +981,7 @@ bool WandererBoxProV3::ISNewSwitch(const char *dev, const char *name, ISState *s
+             LOGF_INFO("Dew Point Difference Mode for DC5 activated! WandererBox will keep the dew heater at the temperature higher than the dew point by the set value.","Updated");
+             return true;
+         }
+-        else if(dc5diffSP[DC5_DPD_Mode].getState() == ISS_ON&&(ENVMonitorNP[Probe1_Temp].value==-127||isnan(ENVMonitorNP[DEW_Point].value)==1))
++        else if(dc5diffSP[DC5_DPD_Mode].getState() == ISS_ON&&(ENVMonitorNP[Probe1_Temp].value==-127||std::isnan(ENVMonitorNP[DEW_Point].value)==1))
+         {
+             DC5DIFFMODE=false;
+             DC5CONSTMODE=false;
+@@ -1032,7 +1032,7 @@ bool WandererBoxProV3::ISNewSwitch(const char *dev, const char *name, ISState *s
+     {
+         dc6diffSP.update(states, names, n);
+         dc6diffSP.setState(IPS_ALERT);
+-        if(dc6diffSP[DC6_DPD_Mode].getState() == ISS_ON&&ENVMonitorNP[Probe2_Temp].value!=-127&&isnan(ENVMonitorNP[DEW_Point].value)==0)
++        if(dc6diffSP[DC6_DPD_Mode].getState() == ISS_ON&&ENVMonitorNP[Probe2_Temp].value!=-127&&std::isnan(ENVMonitorNP[DEW_Point].value)==0)
+         {
+             DC6DIFFMODE=true;
+             DC6CONSTMODE=false;
+@@ -1047,7 +1047,7 @@ bool WandererBoxProV3::ISNewSwitch(const char *dev, const char *name, ISState *s
+             LOGF_INFO("Dew Point Difference Mode for DC6 activated! WandererBox will keep the dew heater at the temperature higher than the dew point by the set value.","Updated");
+             return true;
+         }
+-        else if(dc6diffSP[DC6_DPD_Mode].getState() == ISS_ON&&(ENVMonitorNP[Probe2_Temp].value==-127||isnan(ENVMonitorNP[DEW_Point].value)==1))
++        else if(dc6diffSP[DC6_DPD_Mode].getState() == ISS_ON&&(ENVMonitorNP[Probe2_Temp].value==-127||std::isnan(ENVMonitorNP[DEW_Point].value)==1))
+         {
+             DC6DIFFMODE=false;
+             DC6CONSTMODE=false;
+@@ -1098,7 +1098,7 @@ bool WandererBoxProV3::ISNewSwitch(const char *dev, const char *name, ISState *s
+     {
+         dc7diffSP.update(states, names, n);
+         dc7diffSP.setState(IPS_ALERT);
+-        if(dc7diffSP[DC7_DPD_Mode].getState() == ISS_ON&&ENVMonitorNP[Probe3_Temp].value!=-127&&isnan(ENVMonitorNP[DEW_Point].value)==0)
++        if(dc7diffSP[DC7_DPD_Mode].getState() == ISS_ON&&ENVMonitorNP[Probe3_Temp].value!=-127&&std::isnan(ENVMonitorNP[DEW_Point].value)==0)
+         {
+             DC7DIFFMODE=true;
+             DC7CONSTMODE=false;
+@@ -1113,7 +1113,7 @@ bool WandererBoxProV3::ISNewSwitch(const char *dev, const char *name, ISState *s
+             LOGF_INFO("Dew Point Difference Mode for DC7 activated! WandererBox will keep the dew heater at the temperature higher than the dew point by the set value.","Updated");
+             return true;
+         }
+-        else if(dc7diffSP[DC7_DPD_Mode].getState() == ISS_ON&&(ENVMonitorNP[Probe3_Temp].value==-127||isnan(ENVMonitorNP[DEW_Point].value)==1))
++        else if(dc7diffSP[DC7_DPD_Mode].getState() == ISS_ON&&(ENVMonitorNP[Probe3_Temp].value==-127||std::isnan(ENVMonitorNP[DEW_Point].value)==1))
+         {
+             DC7DIFFMODE=false;
+             DC7CONSTMODE=false;

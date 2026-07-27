@@ -1,12 +1,16 @@
 #!/bin/bash
 # Runs INSIDE rpi5-builder. Requires fix-env.sh and build-stellarsolver.sh
-# to have been run first. repo/kstars is a git submodule.
+# to have been run first. repo/kstars is a plain git clone (not a submodule) — see Makefile's clone-repos target.
 set -euo pipefail
 
 CCDIR=/home/soo/cc
 BUILD=$CCDIR/repo/kstars/build-rpi5
 STAGE=$CCDIR/rpi5-staging/kstars
 STAGE_INDI=$CCDIR/rpi5-staging/indi
+
+# Real upstream GCC12 bug (missing <limits> include, same class as INDI's
+# isnan fix). Idempotent: no-op if already applied.
+bash "$CCDIR/scripts/apply-patch.sh" "$CCDIR/repo/kstars" "$CCDIR/patches/kstars-rectangleoverlap-limits.patch"
 
 mkdir -p "$BUILD"
 cd "$BUILD"

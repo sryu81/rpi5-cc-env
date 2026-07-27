@@ -14,11 +14,18 @@ layout below — the Makefile/scripts are the source of truth for exact paths):
 ## Layout
 
 ```
-repo/indi, repo/indi-3rdparty, repo/kstars, repo/stellarsolver   git submodules (source)
+repo/indi, repo/indi-3rdparty, repo/kstars, repo/stellarsolver   plain git clones, gitignored (source) — NOT submodules
+patches/                                                          local fixes on top of repo/*, tracked here, self-applied
 rpi5-sysroot/                                                     synced Pi filesystem (input)
 rpi5-staging/{indi, indi-3rdparty, kstars}                        make install DESTDIR= trees (output)
 deb/                                                               final .deb packages
 ```
+
+`repo/*` are deliberately plain `git clone`s, not git submodules — regenerate with
+`make clone-repos` (idempotent, skips any that already exist). Any local fix on top of
+upstream lives in `patches/` in *this* repo, never committed inside `repo/*` itself, and
+is applied automatically + idempotently by the relevant build script on every run (see
+"Local patch" notes below) — so wiping and re-cloning `repo/*` loses nothing.
 
 `rpi5-staging` is split per-component because **INDI now packages as two separate
 `.deb`s** — `indi-core-rpi5` and `indi-3rdparty-rpi5` (the latter `Depends:` on the
@@ -83,7 +90,7 @@ same two failures. `scripts/fix-env.sh`:
    (`libunistring`/`libgettextsrc` load error). Fix: `apt install gettext`, pass
    `-DGETTEXT_MSGFMT_EXECUTABLE=/usr/bin/msgfmt -DGETTEXT_MSGMERGE_EXECUTABLE=/usr/bin/msgmerge`
    on reconfigure (`scripts/build-kstars.sh` already does this).
-3. **Git "dubious ownership".** `repo/*` submodules are bind-mounted from the host
+3. **Git "dubious ownership".** `repo/*` (plain clones) are bind-mounted from the host
    (owned by the host UID) but accessed as root inside the container — git refuses to
    run anything against a repo it doesn't consider "owned" by the current user,
    including the `git describe` call INDI's `CMakeLists.txt` uses for its version
@@ -103,9 +110,12 @@ dev-only artifacts in the same staging tree as the runtime files; never ship the
 **Local patch on top of the pinned `v2.2.1.1` tag:** `drivers/auxiliary/wandererbox_plus_v3.cpp`
 and `wandererbox_pro_v3.cpp` call bare `isnan(...)` — GCC 12 with `<cmath>` doesn't inject
 that into the global namespace, only `std::isnan`, so it fails to compile
-(`'isnan' was not declared in this scope`). Patched in place to `std::isnan(...)` (12 call
-sites). This is a real upstream bug, not a cross-compile artifact — if `repo/indi` is ever
-reset/re-cloned/updated, this patch is lost and the build breaks again the same way.
+(`'isnan' was not declared in this scope`). This is a real upstream bug, not a
+cross-compile artifact. Tracked as `patches/indi-glibc-isnan.patch` (in this repo, NOT
+committed inside `repo/indi`, which is a plain clone not a submodule) and applied
+automatically + idempotently by `scripts/build-indi-core.sh` via `scripts/apply-patch.sh`
+before every configure — a `repo/indi` reset/re-clone no longer loses the fix, the next
+build self-heals it.
 
 `Depends` derived from an `objdump -p` `NEEDED` scan of every binary in
 `rpi5-staging/indi`, cross-checked against the real Pi's `dpkg` database
@@ -146,6 +156,14 @@ Needed for plate-solving, installs into `rpi5-staging/kstars` (shared with KStar
 make stellarsolver   # scripts/build-stellarsolver.sh, depends on fix-env
 ```
 
+**Local patch:** `CMakeLists.txt`'s default `qsort_r` feature detection uses `try_run()`,
+which can't execute a cross-compiled test binary on the build host. Tracked as
+`patches/stellarsolver-cross-compile-qsort_r.patch` (adds a `CMAKE_CROSSCOMPILING`
+branch with hardcoded, known-correct values instead of guessing; also covers the
+generated `os-features-config.h` and an `ioutils.c` include guard) — applied
+automatically + idempotently by the build script, same mechanism as INDI's `isnan` fix.
+This one predates this session's work (found already applied, not authored by Claude).
+
 ## 4. KStars — `make kstars` / `make kstars-deb`
 
 ```bash
@@ -156,6 +174,12 @@ Stock upstream KStars (`repo/kstars`, `stable-3.8.3` branch) — no fork, no cus
 WebSocket code (that's still-unstarted future work, see project memory). If the build
 fails with the QEMU/binfmt or gettext errors from §0, run `make fix-env` and retry —
 don't debug it as a KStars-specific problem, it isn't one.
+
+**Local patch:** `kstars/auxiliary/rectangleoverlap.cpp` is missing `#include <limits>` —
+same class of bug as INDI's `isnan` fix (GCC 12 not transitively pulling in a header
+another translation unit used to provide). Tracked as
+`patches/kstars-rectangleoverlap-limits.patch`, applied automatically + idempotently.
+Also predates this session (found already applied, not authored by Claude).
 
 `scripts/package-kstars.sh` drops build-only artifacts before packaging
 (`libhtmesh.a`, dev `cmake`/`pkgconfig` dirs) and strips the binary + bundled

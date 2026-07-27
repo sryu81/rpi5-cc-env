@@ -6,6 +6,10 @@ CCDIR=/home/soo/cc
 BUILD=$CCDIR/repo/indi/build-rpi5
 STAGE=$CCDIR/rpi5-staging/indi
 
+# Real upstream GCC12 bug (bare isnan() not injected into global namespace by
+# <cmath>) — see docs/BUILD-AND-PACKAGE.md. Idempotent: no-op if already applied.
+bash "$CCDIR/scripts/apply-patch.sh" "$CCDIR/repo/indi" "$CCDIR/patches/indi-glibc-isnan.patch"
+
 mkdir -p "$BUILD" "$STAGE"
 cd "$BUILD"
 

@@ -6,7 +6,10 @@
 # narrative and rationale behind every step here.
 #
 # Layout:
-#   repo/<name>          - git submodules (indi, indi-3rdparty, kstars, stellarsolver)
+#   repo/<name>          - plain independent git clones (indi, indi-3rdparty, kstars,
+#                          stellarsolver) — gitignored, NOT submodules of this repo.
+#                          `make clone-repos` to (re)clone. Local patches on top live
+#                          in patches/ (tracked here) and self-apply on every build.
 #   rpi5-sysroot/         - synced copy of the Pi's own libs/headers/cmake configs
 #   rpi5-staging/indi          - indi-core install tree (DESTDIR)
 #   rpi5-staging/indi-3rdparty - indi-3rdparty install tree (DESTDIR)
@@ -43,7 +46,7 @@ INDI_CORE_DEB       := $(DEB)/indi-core-rpi5_2.2.1_arm64.deb
 INDI_3RDPARTY_DEB    := $(DEB)/indi-3rdparty-rpi5_2.2.1_arm64.deb
 KSTARS_DEB           := $(DEB)/kstars-custom_3.8.3_arm64.deb
 
-.PHONY: help all build package fix-env submodules \
+.PHONY: help all build package fix-env clone-repos \
         indi-core indi-3rdparty-libs indi-3rdparty-drivers \
         indi-core-deb indi-3rdparty-deb \
         stellarsolver kstars kstars-deb \
@@ -52,7 +55,7 @@ KSTARS_DEB           := $(DEB)/kstars-custom_3.8.3_arm64.deb
 
 help:
 	@echo "Targets:"
-	@echo "  submodules            - git submodule update --init --recursive (repo/*)"
+	@echo "  clone-repos           - clone repo/{indi,indi-3rdparty,kstars,stellarsolver} if missing (plain clones, not submodules)"
 	@echo "  (sysroot reproduction lives in Makefile.sysroot, not here — see 'make -f Makefile.sysroot help')"
 	@echo "  fix-env               - install native Qt5 tools + gettext in the container, fix sysroot symlinks"
 	@echo "  indi-core             - configure/build/install INDI core into rpi5-staging/indi"
@@ -84,10 +87,14 @@ package: indi-core-deb indi-3rdparty-deb kstars-deb
 
 all: build package
 
-# ---- source repos (git submodules) + sysroot (runs on the HOST — needs ssh/rsync to the Pi) ----
+# ---- source repos (plain git clones, not submodules — runs on the HOST) ----
 
-submodules:
-	git submodule update --init --recursive
+clone-repos:
+	@mkdir -p $(CCDIR)/repo
+	test -d $(CCDIR)/repo/indi          || (git clone https://github.com/indilib/indi.git $(CCDIR)/repo/indi && git -C $(CCDIR)/repo/indi checkout v2.2.1.1)
+	test -d $(CCDIR)/repo/indi-3rdparty || git clone https://github.com/indilib/indi-3rdparty.git $(CCDIR)/repo/indi-3rdparty
+	test -d $(CCDIR)/repo/kstars        || (git clone https://github.com/kde/kstars.git $(CCDIR)/repo/kstars && git -C $(CCDIR)/repo/kstars checkout stable-3.8.3)
+	test -d $(CCDIR)/repo/stellarsolver || git clone --branch 2.6 --depth 1 https://github.com/rlancaste/stellarsolver.git $(CCDIR)/repo/stellarsolver
 
 # ---- environment ------------------------------------------------------
 

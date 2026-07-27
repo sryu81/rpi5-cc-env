@@ -1,0 +1,72 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index e8d96a2..7ea357a 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -63,7 +63,13 @@ if (WIN32)
+     file(APPEND "${config_FN}" "#define NEED_QSORT_R 1\n")
+     file(APPEND "${config_FN}" "#define NEED_SWAP_QSORT_R 0\n")
+ 
+-else(WIN32)
++elseif(CMAKE_CROSSCOMPILING)
++
++    file(APPEND "${config_FN}" "#define NEED_DECLARE_QSORT_R 0\n")
++    file(APPEND "${config_FN}" "#define NEED_QSORT_R 0\n")
++    file(APPEND "${config_FN}" "#define NEED_SWAP_QSORT_R 1\n")
++
++else()
+ 
+ try_run(RUN_RESULT_2 COMPILE_SUCCESS_2 ${CMAKE_CURRENT_BINARY_DIR} ${config_SRCS} COMPILE_DEFINITIONS -DTEST_DECLARE_QSORT_R=ON)
+ if(COMPILE_SUCCESS_2 AND (RUN_RESULT_2 EQUAL 0))
+@@ -89,7 +95,7 @@ else()
+ endif()
+ file(APPEND "${config_FN}" "#define NEED_SWAP_QSORT_R ${VAR_4}\n")
+ 
+-endif(WIN32)
++endif()
+ 
+ # We aren't using netpbm in this program, so set this to 0 no matter what
+ file(APPEND "${config_FN}" "#define HAVE_NETPBM 0")
+@@ -460,12 +466,14 @@ if(BUILD_BATCH_SOLVER)
+             install(DIRECTORY stellarbatchsolver/icons
+                     DESTINATION ${CMAKE_INSTALL_PREFIX}/share)
+         if(WIN32)
+-        else(WIN32)
++            #installation for Windows
++            install(TARGETS StellarBatchSolver DESTINATION ${CMAKE_INSTALL_PREFIX})
++        else()
+             #Desktop file for Linux
+             install(FILES stellarbatchsolver/com.github.rlancaste.stellarbatchsolver.desktop
+                     DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications)
+-        endif(WIN32)
+-    endif(APPLE)
++        endif()
++    endif()
+ endif(BUILD_BATCH_SOLVER)
+ 
+ #########################################################################################
+diff --git a/stellarsolver/astrometry/include/astrometry/os-features-config.h b/stellarsolver/astrometry/include/astrometry/os-features-config.h
+index bcc336e..2cc8f89 100644
+--- a/stellarsolver/astrometry/include/astrometry/os-features-config.h
++++ b/stellarsolver/astrometry/include/astrometry/os-features-config.h
+@@ -1,4 +1,4 @@
+-#define NEED_DECLARE_QSORT_R 1
++#define NEED_DECLARE_QSORT_R 0
+ #define NEED_QSORT_R 0
+-#define NEED_SWAP_QSORT_R 0
++#define NEED_SWAP_QSORT_R 1
+ #define HAVE_NETPBM 0
+\ No newline at end of file
+diff --git a/stellarsolver/astrometry/util/ioutils.c b/stellarsolver/astrometry/util/ioutils.c
+index b4ecba0..e00df20 100644
+--- a/stellarsolver/astrometry/util/ioutils.c
++++ b/stellarsolver/astrometry/util/ioutils.c
+@@ -43,7 +43,9 @@
+ 
+ #include "os-features.h"
+ #include "ioutils.h"
++#if NEED_QSORT_R
+ #include "qsort_reentrant.c"
++#endif
+ #include "errors.h"
+ #include "log.h"
+ 
