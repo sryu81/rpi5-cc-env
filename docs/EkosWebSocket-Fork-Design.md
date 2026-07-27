@@ -169,24 +169,55 @@ as a local user would via the GUI.
   `QWebSocketServer`, listening on a configured port, accepting incoming connections
   from the mobile app instead of dialing out to a configured URL.
 - `EkosLiveClient`'s two-slot (`Online`/`Offline`) `NodeManager` setup → simplified to
-  the new listener class, no auth dialog/keychain/JWT machinery.
+  the new listener class, no auth dialog/keychain/JWT machinery. Renamed: namespace
+  `EkosLive` → `EkosRemote`, class `EkosLive::Client` → `EkosRemote::Server`,
+  `Ekos::Manager`'s `ekosLiveClient` member → `ekosRemote` (same construction slot,
+  not a parallel member — see decision #2 below).
 - `cloud.h`/`.cpp` → drop entirely, not needed.
+- `Node` extended in place (not forked) — pointer-ify `m_WebSocket`, add
+  `adoptSocket(QWebSocket*)` for the accept-side path (decision #1 below).
 
 **Keep the broadcast pattern as-is** in `Message`/`Media` — per the scope decision, a
 small/fixed connected-client set is fine; this is not a multi-session redesign.
 
-**Open implementation questions for when this work starts:**
-1. Does `Node`'s API (constructed from a `QWebSocket*`) support being handed an
-   *already-connected* server-accepted socket (from `QWebSocketServer::nextPendingConnection()`),
-   or does it need modification to support both dial-out and accept modes?
-2. Where does the new listener class get wired into `Ekos::Manager` — same construction
-   point as today's `ekosLiveClient` member, or a fully separate parallel path?
-3. What auth (if any) replaces the JWT flow for a trusted local network? (Likely: none,
-   or a simple shared secret/pairing code — not account infrastructure.)
-4. Port/bind address configuration — new Ekos/KStars settings entry, analogous to
-   `Options::ekosLiveOfflineServer()`.
+**Decisions (2026-07-27):**
+1. **Extend `Node`, don't fork a new class.** `Node` currently owns `m_WebSocket` as a
+   value member (`node.h:72`) and only knows how to dial out (`connectServer()` →
+   `m_WebSocket.open(url)`, `node.cpp:40`). Change `m_WebSocket` to a pointer, add
+   `Node::adoptSocket(QWebSocket*)` that takes an already-connected socket (from
+   `QWebSocketServer::nextPendingConnection()`), rewires the same `connected`/
+   `disconnected`/`textMessageReceived` signal hookups the ctor does today, and skips
+   `open()` for this path. `sendResponse`/`sendEvent`/etc. are untouched — they only
+   call methods on `m_WebSocket` regardless of how it got connected.
+2. **Same construction slot, renamed.** `Ekos::Manager`'s `ekosLiveClient` member
+   (type `EkosLive::Client`) is misleadingly named — it's just where KStars holds the
+   `Message`/`Media` pair that ~15+ signal-wiring call sites in `manager.cpp` push
+   status into (`ekosLiveClient.get()->message()->updateFocusStatus(...)`, etc). Since
+   this fork drops stock EkosLive entirely (no need to run both), repurpose that same
+   slot instead of adding a parallel member — zero changes needed at those 15+ call
+   sites, since they only touch `.message()`/`.media()` accessors. Rename throughout
+   (user, 2026-07-27: "ekosLive -> ekosRemote"), swapping `Live`→`Remote`: namespace
+   `EkosLive` → `EkosRemote`, source dir `kstars/ekos/ekoslive/` → `kstars/ekos/ekosremote/`,
+   member `ekosLiveClient` → `ekosRemote`, class `EkosLive::Client` → `EkosRemote::Server`
+   (`Client`→`Server` per decision above, since this class now listens, it doesn't dial out).
+3. **No auth.** Trusted local network; skip the JWT/HTTP-auth handshake entirely for
+   the new listener. `NodeManager::authenticate()`'s whole flow (`nodemanager.cpp:147`)
+   is dropped, not adapted.
+4. **Superseded (user, mid-implementation, 2026-07-27): hardcoded port, not a kcfg
+   Options entry.** ~~New Options/kcfg entry for the listen port, analogous to
+   `Options::ekosLiveOfflineServer()`~~ — user reconsidered while Phase 0 rename was
+   in flight: "it looks better to fix the port number. this server should always be
+   enabled when kstars is running." So: fixed port constant in code (no UI/config),
+   and the server starts automatically whenever KStars runs — no enable/disable
+   toggle, no `AutoStartEkosRemote`-style opt-in checkbox. This also means the
+   existing `RememberCredentials`/`AutoStartEkosRemote`/`EkosRemoteUsername`/
+   keychain/enrollment-token machinery in `ekosremoteserver.cpp` (all auth/dial-out
+   leftovers) gets deleted outright in Phase 2/3, not just renamed.
 
 ## Related
+
+- `docs/EkosRemote-Client-Guide.md` — protocol reference for the mobile app side, written
+  once the fork above was implemented and build-verified.
 
 - `~/.claude/projects/-home-soo-cc/memory/kstars_websocket_fork.md` — persistent memory
   version of this trace (for future Claude Code sessions on this project).
