@@ -1,0 +1,12 @@
+[submodule "repo/indi"]
+	path = repo/indi
+	url = https://github.com/indilib/indi.git
+[submodule "repo/indi-3rdparty"]
+	path = repo/indi-3rdparty
+	url = https://github.com/indilib/indi-3rdparty.git
+[submodule "repo/kstars"]
+	path = repo/kstars
+	url = https://github.com/kde/kstars.git
+[submodule "repo/stellarsolver"]
+	path = repo/stellarsolver
+	url = https://github.com/rlancaste/stellarsolver.git

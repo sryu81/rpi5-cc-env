@@ -1,0 +1,44 @@
+# Reproduce rpi5-sysroot/ from a real Raspberry Pi. Separate from the main
+# Makefile on purpose — rpi5-sysroot/ (and rpi5-staging/) are gitignored
+# (3-5GB of binary blobs, fully regenerable, a bad fit for git); this is the
+# "regenerate the input snapshot" side of that, not part of the day-to-day
+# build/package loop.
+#
+# Usage:
+#   make -f Makefile.sysroot reproduce PI_IP=10.0.0.43   # full: install pkgs + sync
+#   make -f Makefile.sysroot pi-packages PI_IP=10.0.0.43 # just install -dev pkgs on the Pi
+#   make -f Makefile.sysroot sync PI_IP=10.0.0.43         # just rsync (pkgs already installed)
+#   make -f Makefile.sysroot verify                       # check key cmake configs + GLIBC match
+
+CCDIR      := /home/soo/cc
+SCRIPTS    := $(CCDIR)/scripts
+SYSROOT    := $(CCDIR)/rpi5-sysroot
+
+PI_USER    ?= soo
+PI_IP      ?= 10.0.0.43
+PI         := $(PI_USER)@$(PI_IP)
+
+.PHONY: help reproduce pi-packages sync verify
+
+help:
+	@echo "Targets:"
+	@echo "  pi-packages  - ssh to the Pi, install every -dev package the sysroot needs"
+	@echo "  sync         - rsync libs/headers/cmake configs from the Pi, fix symlinks + blas/lapack gap"
+	@echo "  reproduce    - pi-packages + sync"
+	@echo "  verify       - check key cmake configs exist + GLIBC version matches the Pi"
+	@echo "PI_USER=$(PI_USER) PI_IP=$(PI_IP) (override on the command line)"
+
+reproduce: pi-packages sync
+
+pi-packages:
+	bash $(SCRIPTS)/pi-install-dev-packages.sh $(PI)
+
+sync:
+	bash $(SCRIPTS)/sync-sysroot.sh $(PI)
+
+verify:
+	@echo "--- key cmake configs ---"
+	@find $(SYSROOT)/usr -name "Qt5Config.cmake" -o -name "KF5ConfigConfig.cmake" -o -name "ECMConfig.cmake"
+	@echo "--- GLIBC: sysroot libc.so.6 vs the real Pi (must match exactly) ---"
+	@ssh $(PI) "sha256sum /lib/aarch64-linux-gnu/libc.so.6"
+	@sha256sum $(SYSROOT)/lib/aarch64-linux-gnu/libc.so.6
