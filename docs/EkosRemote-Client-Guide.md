@@ -6,6 +6,11 @@ the Raspberry Pi. This documents the wire protocol as implemented in
 `repo/kstars/kstars/ekos/ekosremote/`; when in doubt, that source is authoritative — this
 guide points at exact files/functions rather than re-deriving behavior that could drift.
 
+**For the exhaustive command-by-command payload reference** (every one of the ~190
+commands, exact request/response field shapes, dead/unimplemented commands, known quirks),
+see `docs/EkosRemote-Command-Reference.md`. This guide covers the lifecycle/architecture
+picture; that doc is the API reference.
+
 ## Architecture
 
 - **The Pi listens, the phone connects.** No cloud/relay server, no account system. Connect
@@ -111,7 +116,30 @@ directly:
 ```
 
 ```json
-{"type": "invoke_method", "payload": {"object": "Capture", "method": "someSlot", "args": [...]}}
+{"type": "invoke_method", "payload": {"object": "Capture", "name": "someSlot", "args": [{"type": 10, "value": "foo"}]}}
+```
+
+The method name key is **`"name"`, not `"method"`** (`Message::invokeMethod`, `message.cpp:3082`, reads
+`payload["name"]`). Each entry in `"args"` must be an object `{"type": <int>, "value": <...>}`,
+not a bare value — `"type"` is a `QVariant::Type` enum integer (Qt5; this build predates Qt6)
+telling `Message::parseArgument` (`message.cpp:2987`) how to unmarshal `"value"`. Supported types:
+
+| `type` | Qt type | Notes |
+|---|---|---|
+| 1 | `Bool` | |
+| 2 | `Int` | |
+| 3 | `UInt` | |
+| 4 | `LongLong` | unmarshaled into a plain `int` (see source) |
+| 5 | `ULongLong` | unmarshaled into a plain `uint` (see source) |
+| 6 | `Double` | |
+| 10 | `String` | |
+| 17 | `Url` | |
+| 21 | `Size` | `"value"` is `{"width": <int>, "height": <int>}` |
+
+Anything else falls to `default: break;` and the call silently fails to build that argument.
+Example — select a profile (without starting it) via `Ekos::Manager::setProfile(const QString&)`:
+```json
+{"type": "invoke_method", "payload": {"object": "Manager", "name": "setProfile", "args": [{"type": 10, "value": "My Profile"}]}}
 ```
 
 `"object"` is resolved by `Message::findObject` (`message.cpp:2952`) via Qt's `objectName()`,
