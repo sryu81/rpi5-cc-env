@@ -16,5 +16,8 @@
 .DS_Store
 *~
 
+# local Python venv for scripts/test-ekosremote-client.py, not project source
+/.venv/
+
 # local Claude Code session/tool settings, not project source
 /.claude/
