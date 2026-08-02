@@ -7,12 +7,11 @@
 set -euo pipefail
 
 PI="$1"
-
+    #libcurl4-gnutls-dev \
 ssh "$PI" 'sudo apt update && sudo apt install -y \
     build-essential cmake git \
     libusb-1.0-0-dev \
     libcurl4-openssl-dev \
-    libcurl4-gnutls-dev \
     libgsl-dev \
     libjpeg-dev \
     libfftw3-dev \

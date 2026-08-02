@@ -17,7 +17,6 @@ rsync -avz --rsync-path="sudo rsync" "$PI":/usr/share/pkgconfig "$SYSROOT/usr/sh
 
 # KF5/Qt5/ECM cmake configs — needed for StellarSolver/KStars only, harmless for INDI
 rsync -avz --rsync-path="sudo rsync" "$PI":/usr/lib/aarch64-linux-gnu/cmake "$SYSROOT/usr/lib/aarch64-linux-gnu/cmake"
-rsync -avz --rsync-path="sudo rsync" "$PI":/usr/lib/cmake "$SYSROOT/usr/lib/cmake"
 
 # fix absolute symlinks so they resolve inside this copy, not the Pi's real root
 command -v symlinks >/dev/null || sudo apt-get install -y symlinks
