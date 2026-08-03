@@ -120,10 +120,10 @@ docker-container:
 
 clone-repos:
 	@mkdir -p $(CCDIR)/repo
-	test -d $(CCDIR)/repo/indi          || (git clone https://github.com/indilib/indi.git $(CCDIR)/repo/indi && git -C $(CCDIR)/repo/indi checkout v2.2.1.1)
-	test -d $(CCDIR)/repo/indi-3rdparty || git clone https://github.com/indilib/indi-3rdparty.git $(CCDIR)/repo/indi-3rdparty
-	test -d $(CCDIR)/repo/kstars        || (git clone https://github.com/kde/kstars.git $(CCDIR)/repo/kstars && git -C $(CCDIR)/repo/kstars checkout stable-3.8.3)
-	test -d $(CCDIR)/repo/stellarsolver || git clone --branch 2.6 --depth 1 https://github.com/rlancaste/stellarsolver.git $(CCDIR)/repo/stellarsolver
+	test -d $(CCDIR)/repo/indi          || git clone https://github.com/sryu81/indi.git $(CCDIR)/repo/indi
+	test -d $(CCDIR)/repo/indi-3rdparty || git clone https://github.com/sryu81/indi-3rdparty.git $(CCDIR)/repo/indi-3rdparty
+	test -d $(CCDIR)/repo/kstars        || (git clone https://github.com/sryu81/kstars.git $(CCDIR)/repo/kstars && git -C $(CCDIR)/repo/kstars checkout stable-3.8.3)
+	test -d $(CCDIR)/repo/stellarsolver || git clone https://github.com/sryu81/stellarsolver.git $(CCDIR)/repo/stellarsolver
 
 # ---- environment ------------------------------------------------------
 

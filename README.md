@@ -12,10 +12,10 @@ per-project detail: `docs/CrossCompileGuide.md` (INDI), `docs/KStars-Build-Plan.
 
 ```
 repo/                   plain independent git clones (NOT submodules) — the source trees
-  indi/                 github.com/indilib/indi.git, tag v2.2.1.1
-  indi-3rdparty/        github.com/indilib/indi-3rdparty.git, master
-  kstars/                github.com/kde/kstars.git, stable-3.8.3 branch
-  stellarsolver/         github.com/rlancaste/stellarsolver.git, tag 2.6
+  indi/                 github.com/sryu81/indi.git, master (fork snapshot, upstream v2.2.1.1 + local patches)
+  indi-3rdparty/        github.com/sryu81/indi-3rdparty.git, master (fork snapshot)
+  kstars/                github.com/sryu81/kstars.git, stable-3.8.3 branch (fork)
+  stellarsolver/         github.com/sryu81/stellarsolver.git, master (fork snapshot, upstream tag 2.6 + local patches)
 
 patches/                 local fixes on top of repo/*, tracked here (never inside
                          repo/* itself) — applied automatically + idempotently by the

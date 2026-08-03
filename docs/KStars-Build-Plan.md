@@ -10,10 +10,13 @@ Separate staging dirs keep INDI and KStars builds independent.
 > **Note:** earlier drafts of this doc planned a KStars fork with a custom WebSocket
 > server (`git checkout v3.7.1` + "add your WebSocket server code here"). That never
 > happened — the actual tree built and packaged (`kstars-custom_3.8.3_arm64.deb`) is
-> stock upstream `kde/kstars.git` on the `stable-3.8.3` branch, no fork, no custom code.
-> This doc now reflects what's actually built. If the WebSocket fork is still planned,
-> it hasn't been started yet — treat it as a separate future task, not something already
-> baked into this pipeline.
+> stock upstream KStars on the `stable-3.8.3` branch, no custom code. This doc now
+> reflects what's actually built. If the WebSocket fork is still planned, it hasn't
+> been started yet — treat it as a separate future task, not something already baked
+> into this pipeline.
+>
+> Source now clones from `sryu81/kstars.git`, a personal mirror pushed from a full
+> clone of upstream — content on `stable-3.8.3` is unchanged from upstream KDE.
 
 > **Also superseded by the `Makefile`.** Source now lives at `repo/stellarsolver` and
 > `repo/kstars` (plain git clones, not submodules), staging is `rpi5-staging/kstars`, packaging output is
@@ -215,7 +218,7 @@ StellarSolver is needed for plate-solving. It depends on Qt5, cfitsio, gsl, wcsl
 
 ```bash
 cd ~/cc
-git clone --branch 2.6 --depth 1 https://github.com/rlancaste/stellarsolver.git
+git clone https://github.com/sryu81/stellarsolver.git
 mkdir -p stellarsolver/build-rpi5
 cd stellarsolver/build-rpi5
 
@@ -242,12 +245,12 @@ objdump -p ~/cc/rpi5-staging-kstars/usr/lib/libstellarsolver.so.2.6 | grep GLIBC
 
 ```bash
 cd ~/cc
-git clone https://github.com/kde/kstars.git
+git clone https://github.com/sryu81/kstars.git
 cd kstars
 git checkout stable-3.8.3
 ```
 
-No fork, no custom code — this is stock upstream KStars, built as-is.
+Source is a personal mirror (`sryu81/kstars`, pushed from a full clone of upstream) — content is unmodified stock KStars on `stable-3.8.3`, no custom code, built as-is.
 
 Then cross-compile:
 

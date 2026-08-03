@@ -227,7 +227,7 @@ The highest version shown must be `GLIBC_2.36` or lower. If you see `GLIBC_2.38`
 
 ```bash
 # Clone the source on the host first if not already done
-# git clone https://github.com/indilib/indi.git ~/cc/indi
+# git clone https://github.com/sryu81/indi.git ~/cc/indi
 
 # Inside the container
 mkdir -p /home/soo/cc/indi/build-rpi5
