@@ -4,7 +4,7 @@
 # indi-core's libindidriver/libindiclient/libindiAlignmentDriver).
 set -euo pipefail
 
-CCDIR=/home/soo/cc
+CCDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD=$CCDIR/repo/indi-3rdparty/build-drivers-rpi5
 STAGE=$CCDIR/rpi5-staging/indi-3rdparty
 STAGE_CORE=$CCDIR/rpi5-staging/indi
@@ -15,6 +15,7 @@ cd "$BUILD"
 
 cmake .. \
   -DCMAKE_TOOLCHAIN_FILE=$CCDIR/rpi5-toolchain.cmake \
+  -DSYSROOT=$SYSROOT \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_INSTALL_PREFIX=/usr \
   -DCMAKE_PREFIX_PATH="$STAGE/usr;$STAGE_CORE/usr;$SYSROOT/usr" \

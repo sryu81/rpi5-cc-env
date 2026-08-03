@@ -1,7 +1,11 @@
 set(CMAKE_SYSTEM_NAME Linux)
 set(CMAKE_SYSTEM_PROCESSOR aarch64)
 
-set(SYSROOT /home/soo/cc/rpi5-sysroot)
+# Passed in via -DSYSROOT=... by every scripts/build-*.sh (never $ENV{HOME} —
+# that resolves to /root inside the container, not the bind-mounted repo root).
+if(NOT DEFINED SYSROOT)
+  message(FATAL_ERROR "SYSROOT not set — pass -DSYSROOT=<path-to-rpi5-sysroot>")
+endif()
 
 set(CMAKE_SYSROOT ${SYSROOT})
 

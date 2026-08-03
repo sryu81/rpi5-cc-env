@@ -4,7 +4,8 @@
 # See docs/BUILD-AND-PACKAGE.md Step 0 for why this is needed.
 set -euo pipefail
 
-SYSROOT=/home/soo/cc/rpi5-sysroot
+CCDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SYSROOT=$CCDIR/rpi5-sysroot
 
 # repo/* are plain git clones, bind-mounted from the host (owned by the host UID) but
 # accessed as root inside the container — git refuses to run any command
@@ -44,7 +45,7 @@ ln -sf /usr/lib/x86_64-linux-gnu/libexec/kf5/kconf_update      "$SYSROOT/usr/lib
 # never rsynced from the Pi, leaving lib/aarch64-linux-gnu/lib{blas,lapack}.so.3
 # dangling (the usr/lib/aarch64-linux-gnu copies resolve fine via a different,
 # relative symlink chain — only the top-level lib/ copies are affected).
-ln -sf /home/soo/cc/rpi5-sysroot/usr/lib/aarch64-linux-gnu/blas/libblas.so.3.11.0     "$SYSROOT/lib/aarch64-linux-gnu/libblas.so.3"
-ln -sf /home/soo/cc/rpi5-sysroot/usr/lib/aarch64-linux-gnu/lapack/liblapack.so.3.11.0 "$SYSROOT/lib/aarch64-linux-gnu/liblapack.so.3"
+ln -sf "$SYSROOT/usr/lib/aarch64-linux-gnu/blas/libblas.so.3.11.0"     "$SYSROOT/lib/aarch64-linux-gnu/libblas.so.3"
+ln -sf "$SYSROOT/usr/lib/aarch64-linux-gnu/lapack/liblapack.so.3.11.0" "$SYSROOT/lib/aarch64-linux-gnu/liblapack.so.3"
 
 echo "fix-env: native Qt5 + KF5 tools + gettext installed, sysroot symlinks fixed."

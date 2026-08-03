@@ -3,7 +3,7 @@
 # KStars combined) into deb/kstars-custom_<version>_arm64.deb.
 set -euo pipefail
 
-CCDIR=/home/soo/cc
+CCDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 STAGE=$CCDIR/rpi5-staging/kstars
 PKG=$CCDIR/deb/kstars-custom-pkg
 VERSION=3.8.3

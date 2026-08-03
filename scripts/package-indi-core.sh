@@ -3,7 +3,7 @@
 # deb/indi-core-rpi5_<version>_arm64.deb.
 set -euo pipefail
 
-CCDIR=/home/soo/cc
+CCDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 STAGE=$CCDIR/rpi5-staging/indi
 PKG=$CCDIR/deb/indi-core-rpi5-pkg
 VERSION=2.2.1

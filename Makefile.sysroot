@@ -10,7 +10,8 @@
 #   make -f Makefile.sysroot sync PI_IP=10.0.0.43         # just rsync (pkgs already installed)
 #   make -f Makefile.sysroot verify                       # check key cmake configs + GLIBC match
 
-CCDIR      := /home/soo/cc
+# Directory containing this Makefile — see main Makefile for why this isn't hardcoded.
+CCDIR      := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 SCRIPTS    := $(CCDIR)/scripts
 SYSROOT    := $(CCDIR)/rpi5-sysroot
 

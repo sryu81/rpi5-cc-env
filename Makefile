@@ -33,7 +33,10 @@
 #   make deploy PI_IP=10.0.0.43
 #   make verify                   # check GLIBC ceiling on all three built .debs
 
-CCDIR      := /home/soo/cc
+# Directory containing this Makefile — NOT hardcoded, so the whole pipeline
+# works regardless of where this repo is cloned (was hardcoded /home/soo/cc,
+# which broke on any other machine/username/path).
+CCDIR      := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 CONTAINER  ?= rpi5-builder
 DEXEC      := docker exec $(CONTAINER)
 SCRIPTS    := $(CCDIR)/scripts
@@ -104,7 +107,7 @@ bootstrap: docker-container clone-repos fix-env
 docker-container:
 	@if [ -z "$$(docker ps -aq -f name=^/$(CONTAINER)$$)" ]; then \
 		echo "creating $(CONTAINER) container..."; \
-		docker run -d --name $(CONTAINER) -v $(CCDIR):/home/soo/cc debian:bookworm sleep infinity; \
+		docker run -d --name $(CONTAINER) -v $(CCDIR):$(CCDIR) debian:bookworm sleep infinity; \
 		$(DEXEC) bash -c "apt-get update && apt-get install -y $(TOOLCHAIN_PKGS)"; \
 	elif [ -z "$$(docker ps -q -f name=^/$(CONTAINER)$$)" ]; then \
 		echo "starting stopped $(CONTAINER) container..."; \

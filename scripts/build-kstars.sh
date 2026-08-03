@@ -3,10 +3,11 @@
 # to have been run first. repo/kstars is a plain git clone (not a submodule) — see Makefile's clone-repos target.
 set -euo pipefail
 
-CCDIR=/home/soo/cc
+CCDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD=$CCDIR/repo/kstars/build-rpi5
 STAGE=$CCDIR/rpi5-staging/kstars
 STAGE_INDI=$CCDIR/rpi5-staging/indi
+SYSROOT=$CCDIR/rpi5-sysroot
 
 # Real upstream GCC12 bug (missing <limits> include, same class as INDI's
 # isnan fix). Idempotent: no-op if already applied.
@@ -22,9 +23,10 @@ cd "$BUILD"
 # indi-core-rpi5. Surfaced as "indiversion.h: No such file or directory".
 cmake .. \
   -DCMAKE_TOOLCHAIN_FILE=$CCDIR/rpi5-toolchain.cmake \
+  -DSYSROOT=$SYSROOT \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_INSTALL_PREFIX=/usr \
-  -DCMAKE_PREFIX_PATH="$STAGE/usr;$STAGE_INDI/usr;$CCDIR/rpi5-sysroot/usr" \
+  -DCMAKE_PREFIX_PATH="$STAGE/usr;$STAGE_INDI/usr;$SYSROOT/usr" \
   -DStellarSolver_DIR=$STAGE/usr/lib/cmake/StellarSolver \
   -DGETTEXT_MSGFMT_EXECUTABLE=/usr/bin/msgfmt \
   -DGETTEXT_MSGMERGE_EXECUTABLE=/usr/bin/msgmerge \

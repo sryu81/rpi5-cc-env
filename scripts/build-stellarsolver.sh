@@ -5,9 +5,10 @@
 # checked out (`make clone-repos` on the host if missing).
 set -euo pipefail
 
-CCDIR=/home/soo/cc
+CCDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD=$CCDIR/repo/stellarsolver/build-rpi5
 STAGE=$CCDIR/rpi5-staging/kstars
+SYSROOT=$CCDIR/rpi5-sysroot
 
 # Cross-compiling fix: default qsort_r feature detection uses try_run(), which
 # can't execute a cross-compiled test binary on the host. Adds a
@@ -30,10 +31,11 @@ cd "$BUILD"
 # point at the staging path directly.
 cmake .. \
   -DCMAKE_TOOLCHAIN_FILE=$CCDIR/rpi5-toolchain.cmake \
+  -DSYSROOT=$SYSROOT \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_INSTALL_PREFIX=/usr \
   -DCMAKE_STAGING_PREFIX=$STAGE/usr \
-  -DCMAKE_PREFIX_PATH="$STAGE/usr;$CCDIR/rpi5-sysroot/usr" \
+  -DCMAKE_PREFIX_PATH="$STAGE/usr;$SYSROOT/usr" \
   -DBUILD_TESTER=OFF
 
 make -j"$(nproc)" 2>&1 | tee "$CCDIR/stellarsolver-build.log"

@@ -5,7 +5,7 @@
 # are NOT bundled here even though this binary set links against them.
 set -euo pipefail
 
-CCDIR=/home/soo/cc
+CCDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 STAGE=$CCDIR/rpi5-staging/indi-3rdparty
 PKG=$CCDIR/deb/indi-3rdparty-rpi5-pkg
 VERSION=2.2.1

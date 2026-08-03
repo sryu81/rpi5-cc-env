@@ -2,9 +2,10 @@
 # Runs INSIDE rpi5-builder.
 set -euo pipefail
 
-CCDIR=/home/soo/cc
+CCDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD=$CCDIR/repo/indi/build-rpi5
 STAGE=$CCDIR/rpi5-staging/indi
+SYSROOT=$CCDIR/rpi5-sysroot
 
 # Real upstream GCC12 bug (bare isnan() not injected into global namespace by
 # <cmath>) — see docs/BUILD-AND-PACKAGE.md. Idempotent: no-op if already applied.
@@ -15,9 +16,10 @@ cd "$BUILD"
 
 cmake .. \
   -DCMAKE_TOOLCHAIN_FILE=$CCDIR/rpi5-toolchain.cmake \
+  -DSYSROOT=$SYSROOT \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_INSTALL_PREFIX=/usr \
-  -DCMAKE_PREFIX_PATH="$STAGE/usr;$CCDIR/rpi5-sysroot/usr" \
+  -DCMAKE_PREFIX_PATH="$STAGE/usr;$SYSROOT/usr" \
   -DINDI_BUILD_SERVER=ON \
   -DINDI_BUILD_CLIENT=ON \
   -DINDI_BUILD_DRIVERS=ON \

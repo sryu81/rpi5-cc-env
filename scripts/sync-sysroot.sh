@@ -4,7 +4,8 @@
 set -euo pipefail
 
 PI="$1"
-SYSROOT=/home/soo/cc/rpi5-sysroot
+CCDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SYSROOT=$CCDIR/rpi5-sysroot
 
 mkdir -p "$SYSROOT/usr/lib" "$SYSROOT/usr" "$SYSROOT/lib" "$SYSROOT/usr/share" \
          "$SYSROOT/usr/lib/aarch64-linux-gnu" "$SYSROOT/usr/lib/cmake"
