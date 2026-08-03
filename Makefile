@@ -24,6 +24,7 @@
 # cmake/link error, not a Makefile error.
 #
 # Usage:
+#   make bootstrap                 # new machine: create container + clone repos + fix-env
 #   make fix-env                  # required after every container recreation
 #   make indi-core-deb            # build+package indi-core-rpi5_*.deb
 #   make indi-3rdparty-deb        # build+package indi-3rdparty-rpi5_*.deb (needs core)
@@ -46,15 +47,20 @@ INDI_CORE_DEB       := $(DEB)/indi-core-rpi5_2.2.1_arm64.deb
 INDI_3RDPARTY_DEB    := $(DEB)/indi-3rdparty-rpi5_2.2.1_arm64.deb
 KSTARS_DEB           := $(DEB)/kstars-custom_3.8.3_arm64.deb
 
-.PHONY: help all build package fix-env clone-repos \
+.PHONY: help all build package bootstrap docker-container fix-env clone-repos \
         indi-core indi-3rdparty-libs indi-3rdparty-drivers \
         indi-core-deb indi-3rdparty-deb \
         stellarsolver kstars kstars-deb \
         deploy-indi-core deploy-indi-3rdparty deploy-kstars deploy \
         verify clean clean-staging distclean
 
+TOOLCHAIN_PKGS := gcc-aarch64-linux-gnu g++-aarch64-linux-gnu binutils-aarch64-linux-gnu \
+                   cmake make ninja-build pkg-config rsync file python3
+
 help:
 	@echo "Targets:"
+	@echo "  bootstrap             - one-shot new-machine setup: docker-container + clone-repos + fix-env"
+	@echo "  docker-container      - create rpi5-builder container if missing, start it if stopped"
 	@echo "  clone-repos           - clone repo/{indi,indi-3rdparty,kstars,stellarsolver} if missing (plain clones, not submodules)"
 	@echo "  (sysroot reproduction lives in Makefile.sysroot, not here — see 'make -f Makefile.sysroot help')"
 	@echo "  fix-env               - install native Qt5 tools + gettext in the container, fix sysroot symlinks"
@@ -86,6 +92,26 @@ build: indi-3rdparty-drivers kstars
 package: indi-core-deb indi-3rdparty-deb kstars-deb
 
 all: build package
+
+# ---- bootstrap (new machine, runs on the HOST) ---------------------------
+# Does NOT reproduce rpi5-sysroot/ — that needs a live Pi (PI_IP) and is a
+# separate, rarely-run concern (see Makefile.sysroot). Run after bootstrap:
+#   make -f Makefile.sysroot reproduce PI_IP=<ip>
+
+bootstrap: docker-container clone-repos fix-env
+	@echo "bootstrap done. Still needed: make -f Makefile.sysroot reproduce PI_IP=<ip>"
+
+docker-container:
+	@if [ -z "$$(docker ps -aq -f name=^/$(CONTAINER)$$)" ]; then \
+		echo "creating $(CONTAINER) container..."; \
+		docker run -d --name $(CONTAINER) -v $(CCDIR):/home/soo/cc debian:bookworm sleep infinity; \
+		$(DEXEC) bash -c "apt-get update && apt-get install -y $(TOOLCHAIN_PKGS)"; \
+	elif [ -z "$$(docker ps -q -f name=^/$(CONTAINER)$$)" ]; then \
+		echo "starting stopped $(CONTAINER) container..."; \
+		docker start $(CONTAINER); \
+	else \
+		echo "$(CONTAINER) container already running"; \
+	fi
 
 # ---- source repos (plain git clones, not submodules — runs on the HOST) ----
 
