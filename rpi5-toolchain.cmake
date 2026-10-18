@@ -7,6 +7,10 @@ if(NOT DEFINED SYSROOT)
   message(FATAL_ERROR "SYSROOT not set — pass -DSYSROOT=<path-to-rpi5-sysroot>")
 endif()
 
+# try_compile() (e.g. compiler ABI detection) re-reads this file in a scratch project that only
+# receives the variables listed here — without it a re-detection hits the FATAL_ERROR above.
+list(APPEND CMAKE_TRY_COMPILE_PLATFORM_VARIABLES SYSROOT)
+
 set(CMAKE_SYSROOT ${SYSROOT})
 
 set(CMAKE_C_COMPILER   /usr/bin/aarch64-linux-gnu-gcc)
