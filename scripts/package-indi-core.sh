@@ -6,7 +6,7 @@ set -euo pipefail
 CCDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 STAGE=$CCDIR/rpi5-staging/indi
 PKG=$CCDIR/deb/indi-core-rpi5-pkg
-VERSION=2.2.1
+VERSION=2.2.1-1nocturne1   # revision > plain 2.2.1 so apt replaces the stock build; carries the OnStep Unpark patch
 
 rm -rf "$PKG"
 mkdir -p "$PKG"

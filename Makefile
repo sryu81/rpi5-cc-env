@@ -46,7 +46,7 @@ PI_USER    ?= soo
 PI_IP      ?= 10.0.0.43
 PI         := $(PI_USER)@$(PI_IP)
 
-INDI_CORE_DEB       := $(DEB)/indi-core-rpi5_2.2.1_arm64.deb
+INDI_CORE_DEB       := $(DEB)/indi-core-rpi5_2.2.1-1nocturne1_arm64.deb
 INDI_3RDPARTY_DEB    := $(DEB)/indi-3rdparty-rpi5_2.2.1_arm64.deb
 KSTARS_DEB           := $(DEB)/kstars-custom_3.8.3_arm64.deb
 
@@ -70,7 +70,7 @@ help:
 	@echo "  indi-core             - configure/build/install INDI core into rpi5-staging/indi"
 	@echo "  indi-3rdparty-libs    - configure/build/install INDI 3rd-party libs"
 	@echo "  indi-3rdparty-drivers - configure/build/install INDI 3rd-party drivers"
-	@echo "  indi-core-deb         - package rpi5-staging/indi into indi-core-rpi5_2.2.1_arm64.deb"
+	@echo "  indi-core-deb         - package rpi5-staging/indi into indi-core-rpi5_2.2.1-1nocturne1_arm64.deb"
 	@echo "  indi-3rdparty-deb     - package rpi5-staging/indi-3rdparty into indi-3rdparty-rpi5_2.2.1_arm64.deb"
 	@echo "  stellarsolver         - configure/build/install StellarSolver 2.6"
 	@echo "  kstars                - configure/build/install KStars"
