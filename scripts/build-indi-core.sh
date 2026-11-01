@@ -11,6 +11,10 @@ SYSROOT=$CCDIR/rpi5-sysroot
 # <cmath>) — see docs/BUILD-AND-PACKAGE.md. Idempotent: no-op if already applied.
 bash "$CCDIR/scripts/apply-patch.sh" "$CCDIR/repo/indi" "$CCDIR/patches/indi-glibc-isnan.patch"
 
+# OnStep's :hR# reply takes over 0.1 s, the serial reply timeout, so Unpark reported a failure although the mount
+# unparked ("Mount parking failed"); waits 5 s for that one reply. Nocturne docs/BUGS.md B13.
+bash "$CCDIR/scripts/apply-patch.sh" "$CCDIR/repo/indi" "$CCDIR/patches/indi-onstep-unpark-timeout.patch"
+
 mkdir -p "$BUILD" "$STAGE"
 cd "$BUILD"
 

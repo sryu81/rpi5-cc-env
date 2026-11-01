@@ -1,0 +1,30 @@
+diff --git a/drivers/telescope/lx200_OnStep.cpp b/drivers/telescope/lx200_OnStep.cpp
+index 540a9963c..d18d95617 100644
+--- a/drivers/telescope/lx200_OnStep.cpp
++++ b/drivers/telescope/lx200_OnStep.cpp
+@@ -2031,13 +2031,23 @@ bool LX200_OnStep::SetDefaultPark()
+ 
+ bool LX200_OnStep::UnPark()
+ {
+-    char response[RB_MAX_LEN];
++    char response[RB_MAX_LEN] = {0};
+ 
+ 
+     if (!isSimulation())
+     {
++        // OnStep carries out the unpark before it answers :hR#, which takes a second or more. On a serial
++        // connection the usual reply timeout is 0.1 s, so the read timed out, UnPark() returned false and the
++        // base class raised Alert ("Mount parking failed") although the mount did unpark. Wait longer for this
++        // one reply, then put the usual timeout back.
++        const long savedSeconds = OSTimeoutSeconds;
++        const long savedMicroSeconds = OSTimeoutMicroSeconds;
++        OSTimeoutSeconds = 5;
++        OSTimeoutMicroSeconds = 0;
+         int failure_or_error = getCommandSingleCharResponse(PortFD, response, ":hR#"); //0 = failure, 1 = success, no # on reply
+-        if ((response[0] != '1') || (failure_or_error < 0))
++        OSTimeoutSeconds = savedSeconds;
++        OSTimeoutMicroSeconds = savedMicroSeconds;
++        if ((failure_or_error < 0) || (response[0] != '1'))
+         {
+             return false;
+         }
